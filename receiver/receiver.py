@@ -43,7 +43,7 @@ with open(filename, "wb") as f:
 print("File saved at:", filename)
 
 
-# Calculate MD5 checksum
+
 checksum = hashlib.md5(data).hexdigest()
 
 print("File received successfully!")
