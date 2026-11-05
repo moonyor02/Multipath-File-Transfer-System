@@ -21,3 +21,15 @@ def recv_msg(sock):
         return b""
     length = struct.unpack(">I", header)[0] #turn label into number
     return recv_exact(sock, length) #return the bytes of the msg which is the main msg
+
+
+CHUNK_SIZE = 1024
+
+def send_chunk(sock, chunk_no, data):
+    send_msg(sock, struct.pack(">I", chunk_no) + data)
+
+def recv_chunk(sock):
+    payload = recv_msg(sock)
+    if not payload:
+        return None, None
+    return struct.unpack(">I", payload[:4])[0], payload[4:]
