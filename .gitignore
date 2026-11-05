@@ -2,3 +2,5 @@ __pycache__/
 testfiles/*.bin
 received.bin
 receiver/received_file.txt 
+sender/dummy_sender.py
+receiver/dummy_receiver.py
