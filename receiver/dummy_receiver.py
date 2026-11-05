@@ -1,6 +1,7 @@
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "common"))
 
+from protocol import recv_chunk
 import socket, hashlib
 from protocol import recv_msg
 
@@ -10,7 +11,16 @@ server.listen()
 print("Waiting for sender...")
 
 conn, addr = server.accept()
-data = recv_msg(conn)                      # whole file in one message
+# data = recv_msg(conn)                      # whole file in one message
+
+chunks = {}                          # chunk number -> chunk data
+while True:
+    chunk_no, chunk = recv_chunk(conn)
+    if chunk_no is None:             # sender disconnected, no more chunks
+        break
+    chunks[chunk_no] = chunk
+
+data = b"".join(chunks[n] for n in sorted(chunks))
 
 with open("received.bin", "wb") as f:      # wb = write binary
     f.write(data)
