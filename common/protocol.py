@@ -23,13 +23,13 @@ def recv_msg(sock):
     return recv_exact(sock, length) #return the bytes of the msg which is the main msg
 
 
-CHUNK_SIZE = 1024
+CHUNK_SIZE = 1024   # 1KB = 1024 bytes
 
 def send_chunk(sock, chunk_no, data):
-    send_msg(sock, struct.pack(">I", chunk_no) + data)
+    send_msg(sock, struct.pack(">I", chunk_no) + data)    #converts the chunk number into 4 bytes and sends it along with the data
 
 def recv_chunk(sock):
-    payload = recv_msg(sock)
+    payload = recv_msg(sock)   #gets the entire chunk (4 bytes of chunk number + data) and returns it as payload
     if not payload:
         return None, None
-    return struct.unpack(">I", payload[:4])[0], payload[4:]
+    return struct.unpack(">I", payload[:4])[0], payload[4:] #first convert the first 4 bytes into chunk number and return the rest of the payload as data

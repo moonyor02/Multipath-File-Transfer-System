@@ -23,12 +23,12 @@ client.connect(("127.0.0.1", 5001))    #sender initiate connection to the receiv
 chunks = []
 chunk_no = 0
 for start in range(0, len(data), CHUNK_SIZE):
-    chunks.append((chunk_no, data[start : start + CHUNK_SIZE]))
+    chunks.append((chunk_no, data[start : start + CHUNK_SIZE]))    #divides the file into chunks of 1024 bytes and stores them in a list along with their chunk number
     chunk_no += 1
 
-if "--shuffle" in sys.argv:
+if "--shuffle" in sys.argv:    #checks if --shuffle is in the cmd line argumments, if yes then it shuffles the chunks before sending them to the receiver
     random.shuffle(chunks)
-    print("Shuffled. First chunk numbers sent:", [c[0] for c in chunks[:5]])
+    print("Shuffled. First chunk numbers sent:", [c[0] for c in chunks[:5]]) #get the first 5 chunk numbers from the shuffled list.
 
 for chunk_no, chunk in chunks:
     send_chunk(client, chunk_no, chunk)
