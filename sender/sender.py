@@ -1,3 +1,4 @@
+from http import client
 import sys, os # sys - acces to cmd line , os - loc of files/folders
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "common")) # Append the common directory to the Python path
 import random
@@ -15,8 +16,14 @@ with open(filename, "rb") as f:            # rb = read binary
 print("Sending", len(data), "bytes") # calculates the file size
 print("MD5:", hashlib.md5(data).hexdigest())  #calculates and gives a reference hash of og file to compare
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)    # AF - address family (IPv4) , sock_stream - socket type
-client.connect(("127.0.0.1", 5001))    #sender initiate connection to the receiver's IP address & port
+"""client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)    # AF - address family (IPv4) , sock_stream - socket type
+client.connect(("127.0.0.1", 5001))    #sender initiate connection to the receiver's IP address & port"""
+
+clientA = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+clientA.connect(("127.0.0.1", 5001))
+clientB = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+clientB.connect(("127.0.0.1", 5001))
+paths = [clientA, clientB]
 
 #send_msg(client, data)   #transfers the message (tcp conn, file stored in ram)
 
@@ -31,7 +38,8 @@ if "--shuffle" in sys.argv:    #checks if --shuffle is in the cmd line argumment
     print("Shuffled. First chunk numbers sent:", [c[0] for c in chunks[:5]]) #get the first 5 chunk numbers from the shuffled list.
 
 for chunk_no, chunk in chunks:
-    send_chunk(client, chunk_no, chunk)
+    send_chunk(paths[chunk_no % 2], chunk_no, chunk)
 
 print("Sent", len(chunks), "chunks")
-client.close()
+clientA.close()
+clientB.close()
