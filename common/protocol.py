@@ -33,3 +33,14 @@ def recv_chunk(sock):
     if not payload:
         return None, None
     return struct.unpack(">I", payload[:4])[0], payload[4:] #first convert the first 4 bytes into chunk number and return the rest of the payload as data
+
+
+END_MARK    = 0xFFFFFFFF   # sender -> receiver, data = total chunk count
+RESEND_MARK = 0xFFFFFFFE   # receiver -> sender, data = missing chunk numbers
+DONE_MARK   = 0xFFFFFFFD   # receiver -> sender, nothing is missing
+
+def pack_numbers(nums):
+    return b"".join(struct.pack(">I", n) for n in nums)
+
+def unpack_numbers(data):
+    return [struct.unpack(">I", data[i:i+4])[0] for i in range(0, len(data), 4)]

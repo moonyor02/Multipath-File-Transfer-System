@@ -6,7 +6,8 @@ import random
 #---modules---
 import socket, hashlib    
 from protocol import send_msg 
-from protocol import CHUNK_SIZE, send_chunk
+from protocol import (CHUNK_SIZE, send_chunk, recv_chunk, pack_numbers,
+                      unpack_numbers, END_MARK, RESEND_MARK, DONE_MARK)
 
 filename = sys.argv[1]  # it retrieves the testfile/small.bin by providing by cmd line
 
@@ -37,8 +38,37 @@ if "--shuffle" in sys.argv:    #checks if --shuffle is in the cmd line argumment
     random.shuffle(chunks)
     print("Shuffled. First chunk numbers sent:", [c[0] for c in chunks[:5]]) #get the first 5 chunk numbers from the shuffled list.
 
+
+dropped = set()
+if "--drop" in sys.argv:
+    dropped = {n for n in range(len(chunks)) if n % 7 == 3}     #skip chucks 3,10,17....
+    print("Skipping chunks:", sorted(dropped)[:10])
+
 for chunk_no, chunk in chunks:
+    if chunk_no in dropped:
+        continue
     send_chunk(paths[chunk_no % 2], chunk_no, chunk) # even chunk no. -> clientA, odd chunk no. -> clientB
+
+def send_end():
+    for p in paths:
+        send_chunk(p, END_MARK, pack_numbers([len(chunks)]))
+
+send_end()  #send the END_MARK to both clients to indicate that all chunks have been sent
+chunk_by_no = dict(chunks)
+
+while True:
+    kind, payload = recv_chunk(paths[0])      # wait for the receiver's answer
+    if kind == DONE_MARK:
+        print("Receiver confirmed: all chunks received")
+        break
+    if kind == RESEND_MARK:
+        missing = unpack_numbers(payload)
+        print("Resending chunks:", missing[:10])
+        for n in missing:
+            send_chunk(paths[n % 2], n, chunk_by_no[n])
+        send_end()
+    else:
+        break   
 
 print("Sent", len(chunks), "chunks")
 clientA.close()
