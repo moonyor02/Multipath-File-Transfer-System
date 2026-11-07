@@ -39,6 +39,7 @@ if "--shuffle" in sys.argv:    #checks if --shuffle is in the cmd line argumment
     print("Shuffled. First chunk numbers sent:", [c[0] for c in chunks[:5]]) #get the first 5 chunk numbers from the shuffled list.
 
 
+#----Intentionall drop chunk to simulate packet loss----
 dropped = set()
 if "--drop" in sys.argv:
     dropped = {n for n in range(len(chunks)) if n % 7 == 3}     #skip chucks 3,10,17....
@@ -51,11 +52,12 @@ for chunk_no, chunk in chunks:
 
 def send_end():
     for p in paths:
-        send_chunk(p, END_MARK, pack_numbers([len(chunks)]))
+        send_chunk(p, END_MARK, pack_numbers([len(chunks)]))  #send packs expected chunks for receiver to check for missing chunks
 
 send_end()  #send the END_MARK to both clients to indicate that all chunks have been sent
 chunk_by_no = dict(chunks)
 
+#---feedback loop---
 while True:
     kind, payload = recv_chunk(paths[0])      # wait for the receiver's answer
     if kind == DONE_MARK:
@@ -65,7 +67,7 @@ while True:
         missing = unpack_numbers(payload)
         print("Resending chunks:", missing[:10])
         for n in missing:
-            send_chunk(paths[n % 2], n, chunk_by_no[n])
+            send_chunk(paths[n % 2], n, chunk_by_no[n])   #deciding the client to send based on the chuck number (even -> clientA, odd -> clientB)
         send_end()
     else:
         break   

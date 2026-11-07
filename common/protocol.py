@@ -40,7 +40,7 @@ RESEND_MARK = 0xFFFFFFFE   # receiver -> sender, data = missing chunk numbers
 DONE_MARK   = 0xFFFFFFFD   # receiver -> sender, nothing is missing
 
 def pack_numbers(nums):
-    return b"".join(struct.pack(">I", n) for n in nums)
+    return b"".join(struct.pack(">I", n) for n in nums)   #list of each number -> 4 bytes
 
 def unpack_numbers(data):
-    return [struct.unpack(">I", data[i:i+4])[0] for i in range(0, len(data), 4)]
+    return [struct.unpack(">I", data[i:i+4])[0] for i in range(0, len(data), 4)]   #reverse of pack_numbers, takes the data and returns a list of numbers
