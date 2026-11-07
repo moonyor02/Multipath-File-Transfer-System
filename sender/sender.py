@@ -38,7 +38,7 @@ if "--shuffle" in sys.argv:    #checks if --shuffle is in the cmd line argumment
     print("Shuffled. First chunk numbers sent:", [c[0] for c in chunks[:5]]) #get the first 5 chunk numbers from the shuffled list.
 
 for chunk_no, chunk in chunks:
-    send_chunk(paths[chunk_no % 2], chunk_no, chunk)
+    send_chunk(paths[chunk_no % 2], chunk_no, chunk) # even chunk no. -> clientA, odd chunk no. -> clientB
 
 print("Sent", len(chunks), "chunks")
 clientA.close()
